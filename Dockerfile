@@ -29,8 +29,15 @@ RUN set -ex \
         Mopidy-Iris \
         Mopidy-Moped \
         Mopidy-GMusic \
+        Mopidy-InternetArchive \
         Mopidy-Pandora \
         Mopidy-YouTube \
+        Mopidy-Scrobbler \
+        Mopidy-SomaFM \
+        Mopidy-Bassdrive \
+        Mopidy-Party \
+        Mopidy-Podcast \
+        Mopidy-Mowecl \
         pyopenssl \
         youtube-dl \
  && mkdir -p /var/lib/mopidy/.config \
