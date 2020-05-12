@@ -1,4 +1,4 @@
-FROM debian:stretch-slim
+FROM debian:buster-slim
 
 RUN set -ex \
     # Official Mopidy install for Debian/Ubuntu along with some extensions
@@ -11,7 +11,12 @@ RUN set -ex \
         gnupg \
         gstreamer1.0-alsa \
         gstreamer1.0-plugins-bad \
-        python-crypto \
+        python3 \
+        python3-crypto \
+        python3-pip \
+        apt-transport-https \
+        ca-certificates \
+ && apt-cache policy python3-pykka \
  && curl -L https://apt.mopidy.com/mopidy.gpg | apt-key add - \
  && curl -L https://apt.mopidy.com/mopidy.list -o /etc/apt/sources.list.d/mopidy.list \
  && apt-get update \
@@ -19,9 +24,8 @@ RUN set -ex \
         mopidy \
         mopidy-soundcloud \
         mopidy-spotify \
- && curl -L https://bootstrap.pypa.io/get-pip.py | python - \
- && pip install -U six pyasn1 requests[security] cryptography \
- && pip install \
+ && pip3 install -U six pyasn1 requests[security] cryptography \
+ && pip3 install \
         Mopidy-Iris \
         Mopidy-Moped \
         Mopidy-GMusic \
