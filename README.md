@@ -1,4 +1,4 @@
-[![](https://images.microbadger.com/badges/image/wernight/mopidy.svg)](http://microbadger.com/images/wernight/mopidy "Get your own image badge on microbadger.com")
+[![](https://images.microbadger.com/badges/image/ahhdem/mopidy.svg)](http://microbadger.com/images/ahhdem/mopidy "Get your own image badge on microbadger.com")
 
 What is Mopidy?
 ===============
@@ -36,7 +36,7 @@ Simplest is by adding docker argument: `--device /dev/snd`. Try via:
 
     $ docker run --rm \
         --user root --device /dev/snd \
-        wernight/mopidy \
+        ahhdem/mopidy \
         gst-launch-1.0 audiotestsrc ! audioresample ! autoaudiosink
 
 #### PulseAudio native
@@ -46,7 +46,7 @@ Based on https://github.com/TheBiggerGuy/docker-pulseaudio-example.
 
     $ docker run --rm \
         --user $UID:$GID -v /run/user/$UID/pulse:/run/user/105/pulse \
-        wernight/mopidy \
+        ahhdem/mopidy \
         gst-launch-1.0 audiotestsrc ! audioresample ! autoaudiosink
 
 #### PulseAudio over network
@@ -82,7 +82,7 @@ Example to check it works:
     $ docker run --rm \
         -e "PULSE_SERVER=tcp:$(hostname -i):4713" \
         -e "PULSE_COOKIE_DATA=$(pax11publish -d | grep --color=never -Po '(?<=^Cookie: ).*')" \
-        wernight/mopidy \
+        ahhdem/mopidy \
         gst-launch-1.0 audiotestsrc ! audioresample ! autoaudiosink
 
 ### General usage
@@ -93,7 +93,7 @@ Example to check it works:
         -v "$PWD/local:/var/lib/mopidy/local" \
         -p 6600:6600 -p 6680:6680 \
         --user $UID:$GID \
-        wernight/mopidy \
+        ahhdem/mopidy \
         mopidy \
         -o spotify/username=USERNAME -o spotify/password=PASSWORD \
         -o gmusic/username=USERNAME -o gmusic/password=PASSWORD \
@@ -160,7 +160,7 @@ Then run it:
         -v "$PWD/mopidy.conf:/config/mopidy.conf" \
         -p 6600:6600 -p 6680:6680 \
         --user $UID:$GID \
-        wernight/mopidy
+        ahhdem/mopidy
 
 
 ##### Example using HTTP client to stream local files
@@ -173,7 +173,7 @@ Then run it:
             -v "$PWD/media:/var/lib/mopidy/media:ro" \
             -v "$PWD/local:/var/lib/mopidy/local" \
             -p 6680:6680 \
-            wernight/mopidy mopidy local scan
+            ahhdem/mopidy mopidy local scan
 
  3. Start the server:
 
@@ -183,7 +183,7 @@ Then run it:
             -v "$PWD/media:/var/lib/mopidy/media:ro" \
             -v "$PWD/local:/var/lib/mopidy/local" \
             -p 6680:6680 \
-            wernight/mopidy
+            ahhdem/mopidy
 
  4. Browse to http://localhost:6680/
 
@@ -191,17 +191,17 @@ Then run it:
 
     $ docker run --name mopidy -d \
         -v /run/user/$UID/pulse:/run/user/105/pulse \
-        wernight/mopidy
-    $ docker run --rm -it --net container:mopidy wernight/ncmpcpp ncmpcpp
+        ahhdem/mopidy
+    $ docker run --rm -it --net container:mopidy ahhdem/ncmpcpp ncmpcpp
 
 Alternatively if you don't need visualizers you can do:
 
-    $ docker run --rm -it --link mopidy:mopidy wernight/ncmpcpp ncmpcpp --host mopidy
+    $ docker run --rm -it --link mopidy:mopidy ahhdem/ncmpcpp ncmpcpp --host mopidy
 
 
 ### Feedbacks
 
-Having more issues? [Report a bug on GitHub](https://github.com/wernight/docker-mopidy/issues). Also if you need some additional extensions/plugins that aren't already installed (please explain why).
+Having more issues? [Report a bug on GitHub](https://github.com/ahhdem/docker-mopidy/issues). Also if you need some additional extensions/plugins that aren't already installed (please explain why).
 
 
 ### Alsa Audio
