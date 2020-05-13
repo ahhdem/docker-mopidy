@@ -1,5 +1,11 @@
 FROM debian:buster-slim
 
+COPY config/stable.pref /etc/apt/preferences.d/stable.pref
+COPY config/testing.pref /etc/apt/preferences.d/testing.pref
+
+COPY config/testing.list /etc/apt/sources.list.d/testing.list
+
+
 RUN set -ex \
     # Official Mopidy install for Debian/Ubuntu along with some extensions
     # (see https://docs.mopidy.com/en/latest/installation/debian/ )
@@ -11,6 +17,7 @@ RUN set -ex \
         gnupg \
         gstreamer1.0-alsa \
         gstreamer1.0-plugins-bad \
+        liquidsoap \
         python3 \
         python3-crypto \
         python3-pip \
@@ -19,8 +26,10 @@ RUN set -ex \
  && apt-cache policy python3-pykka \
  && curl -L https://apt.mopidy.com/mopidy.gpg | apt-key add - \
  && curl -L https://apt.mopidy.com/mopidy.list -o /etc/apt/sources.list.d/mopidy.list \
+ && mv /etc/apt/sources.list /etc/apt/sources.list.d/stable.list \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        ezstream \
         mopidy \
         mopidy-soundcloud \
         mopidy-spotify \
@@ -51,19 +60,22 @@ RUN set -ex \
 
 # Start helper script.
 COPY entrypoint.sh /entrypoint.sh
+COPY tokenize.sh /tokenize.sh
+COPY playlist.sh /playlist.sh
 
 # Default configuration.
-COPY mopidy.conf /config/mopidy.conf
+COPY config/mopidy.conf /config/mopidy.conf
+COPY config/ezstream.xml /config/ezstream.xml
 
 # Copy the pulse-client configuratrion.
-COPY pulse-client.conf /etc/pulse/client.conf
+COPY config/pulse-client.conf /etc/pulse/client.conf
 
 # Allows any user to run mopidy, but runs by default as a randomly generated UID/GID.
 ENV HOME=/var/lib/mopidy
 RUN set -ex \
  && usermod -G audio,sudo mopidy \
  && chown mopidy:audio -R $HOME /entrypoint.sh \
- && chmod go+rwx -R $HOME /entrypoint.sh
+ && chmod go+rwx -R $HOME /entrypoint.sh /playlist.sh /tokenize.sh
 
 # Runs as mopidy user by default.
 USER mopidy

@@ -6,4 +6,10 @@ then
     export PULSE_COOKIE=$HOME/pulse.cookie
 fi
 
+if [ -n "$USE_EZSTREAM" ]
+then
+  /tokenize.sh 
+  ezstream -c /config/ezstream.xml&
+fi
+
 exec "$@"
