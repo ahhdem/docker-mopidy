@@ -63,8 +63,8 @@ COPY tokenize.sh /tokenize.sh
 COPY playlist.sh /playlist.sh
 
 # Default configuration.
-COPY config/mopidy.conf /config/mopidy.conf
-COPY config/ezstream.xml /config/ezstream.xml
+COPY config/mopidy.conf /etc/mopidy.conf
+COPY config/ezstream.xml /etc/ezstream.xml
 
 # Copy the pulse-client configuratrion.
 COPY config/pulse-client.conf /etc/pulse/client.conf
@@ -73,8 +73,9 @@ COPY config/pulse-client.conf /etc/pulse/client.conf
 ENV HOME=/var/lib/mopidy
 RUN set -ex \
  && usermod -G audio,sudo mopidy \
- && chown mopidy:audio -R $HOME /entrypoint.sh \
- && chmod go+rwx -R $HOME /entrypoint.sh /playlist.sh /tokenize.sh
+ && chown mopidy:audio -R $HOME /entrypoint.sh /etc/mopidy.conf /etc/ezstream.xml /playlist.sh \
+ && chmod 0770 /playlist.sh \
+ && chmod go+rwx -R $HOME /entrypoint.sh /tokenize.sh
 
 # Runs as mopidy user by default.
 USER mopidy
