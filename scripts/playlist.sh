@@ -3,7 +3,9 @@
 PLAYLISTS=($EZSTREAM_PLAYLISTS)
 MEDIA_DIR=${MEDIA_DIR:-/var/lib/mopidy/media}
 PLAYLIST_DIR=${PLAYLIST_DIR:-/var/lib/mopidy/playlists}
-BAD_SONG_LOG=${BAD_SONG_LOG:-/config/bad_songs.log}
+
+LOG_ROOT=${LOG_ROOT:-/config/}
+BAD_SONG_LOG=${BAD_SONG_LOG:-${LOG_ROOT}/bad_songs.log}
 
 # randomly pick songs from playlist until a file that is both
 # 1: existing
