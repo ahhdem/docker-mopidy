@@ -1,4 +1,5 @@
-#!/bin/bash -eo pipefail
+#!/bin/bash
+
 PLAYLISTS=($EZSTREAM_PLAYLISTS)
 MEDIA_DIR=${MEDIA_DIR:-/var/lib/mopidy/media}
 PLAYLIST_DIR=${PLAYLIST_DIR:-/var/lib/mopidy/playlists}
