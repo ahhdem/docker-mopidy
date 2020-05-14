@@ -1,16 +1,19 @@
 FROM debian:buster-slim
+ENV DEBIAN_FRONTEND noninteractive
 
-COPY config/stable.pref /etc/apt/preferences.d/stable.pref
-COPY config/testing.pref /etc/apt/preferences.d/testing.pref
+COPY etc /etc
+COPY scripts /
 
-COPY config/testing.list /etc/apt/sources.list.d/testing.list
+EXPOSE 6600 6680 5555/udp
+
+VOLUME ["/var/lib/mopidy/local", "/var/lib/mopidy/media"]
 
 
 RUN set -ex \
     # Official Mopidy install for Debian/Ubuntu along with some extensions
     # (see https://docs.mopidy.com/en/latest/installation/debian/ )
  && apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+ && apt-get install -y \
         curl \
         dumb-init \
         gcc \
@@ -22,12 +25,13 @@ RUN set -ex \
         python3-pip \
         apt-transport-https \
         ca-certificates \
- && apt-cache policy python3-pykka \
  && curl -L https://apt.mopidy.com/mopidy.gpg | apt-key add - \
  && curl -L https://apt.mopidy.com/mopidy.list -o /etc/apt/sources.list.d/mopidy.list \
- && mv /etc/apt/sources.list /etc/apt/sources.list.d/stable.list \
- && apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+ && mv /etc/apt/sources.list /etc/apt/sources.list.d/stable.list
+
+RUN apt-get update \
+ && apt-get install -y \
+        lame \
         ezstream \
         mopidy \
         mopidy-soundcloud \
@@ -57,18 +61,6 @@ RUN set -ex \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache
 
-# Start helper script.
-COPY entrypoint.sh /entrypoint.sh
-COPY tokenize.sh /tokenize.sh
-COPY playlist.sh /playlist.sh
-
-# Default configuration.
-COPY config/mopidy.conf /etc/mopidy.conf
-COPY config/ezstream.xml /etc/ezstream.xml
-
-# Copy the pulse-client configuratrion.
-COPY config/pulse-client.conf /etc/pulse/client.conf
-
 # Allows any user to run mopidy, but runs by default as a randomly generated UID/GID.
 ENV HOME=/var/lib/mopidy
 RUN set -ex \
@@ -79,10 +71,5 @@ RUN set -ex \
 
 # Runs as mopidy user by default.
 USER mopidy
-
-VOLUME ["/var/lib/mopidy/local", "/var/lib/mopidy/media"]
-
-EXPOSE 6600 6680 5555/udp
-
 ENTRYPOINT ["/usr/bin/dumb-init", "/entrypoint.sh"]
 CMD ["/usr/bin/mopidy"]
