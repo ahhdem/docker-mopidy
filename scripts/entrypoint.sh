@@ -12,11 +12,24 @@ if [ -z "$PULSE_COOKIE_DATA" ]; then
 fi
 
 # EZstreamer (via playlist.sh), will log files not detected as audio to BAD_SONG_LOG
+# TODO: support multiple streams defined by input variables
+# Name of streams to setup
+# i.e. AUTOSTREAMS="radio commercials"
+# Playlists to randomize
+# AUTOSTREAM_RADIO_PLAYLISTS="classicrock electronic incoming"
+# AUTOSTERAM_COMMERCIALS_PLAYLISTS="commercials"
+
+# Add badsong support to each stream? === refactor how it works significantly?
 function ezstreamer() {
   [ ! -e $BAD_SONG_LOG ] && touch $BAD_SONG_LOG
   tail -f $BAD_SONG_LOG&
   while true; do
-    ezstream -c /config/ezstream.xml
+    ezstream -c /config/ezstream.xml&
+    local _pid=$!
+    # Drop pid to issue signals to (SIGUSR1 -> next track)
+    echo $_pid > /tmp/ezstream.pid
+    # Resume waiting for ezstream
+    tail --pid $_pid -f /dev/null
   done
 }
 
@@ -28,7 +41,7 @@ function fixBadSongs() {
     # Cycle through the mp3 files in the BAD_SONG_LOG
     for song in $(grep -i mp3 $BAD_SONG_LOG); do
       if [ -e "$song" ]; then
-        # Preserver timestamp
+        # Preserve timestamp
         local _mtime=$(stat -c %y "$song");
         echo "Trying to repair: ${song}"
         mp3val "$song" -f || {
