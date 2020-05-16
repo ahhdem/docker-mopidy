@@ -24,7 +24,7 @@
 
       <encoder>Lame-CBR128</encoder>
       <server>icecast</server>
-      <stream_name>onethree radio</stream_name>
+      <stream_name>onethree.radio: random EZSTREAM_PLAYLISTS playlists</stream_name>
       <stream_url>ICECAST_STREAM_URL</stream_url>
       <stream_genre>Beeps</stream_genre>
       <stream_description>Test tones and noise</stream_description>

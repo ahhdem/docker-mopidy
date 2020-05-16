@@ -54,8 +54,9 @@ function fixBadSongs() {
         echo "Missing: $song" >>$MISSING_SONG_LOG
       fi
       # Remove from BAD_SONG_LOG so we dont repeatedly try to repair
-      sed -i'' -e "s|$(echo $song |sed -e 's/[]\/$*.^[]/\\&/g')|d" ${BAD_SONG_LOG}
-    }
+      sed -i'' -e "/^$(echo $song |sed -e 's/[]\/$*.^[]/\\&/g')/d" ${BAD_SONG_LOG}
+    done
+  done
 }
 
 if [ -n "$USE_EZSTREAM" ]
