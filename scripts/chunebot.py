@@ -10,11 +10,11 @@ There are a number of utility commands being showcased here.'''
 bot = commands.Bot(command_prefix='?', description=description)
 
 def now_playing():
-    return track_path(subprocess.run(['/bin/cat', '/config/now-playing'], capture_output=True, text=True).stdout)
+    current = ''
+    while current == '':
+        current = subprocess.run(['/bin/cat', '/config/now-playing'], capture_output=True, text=True).stdout
 
-
-def track_path(path):
-    path_bits=path.split('/')
+    path_bits=current.split('/')
     return '%s/%s' % (path_bits[-2], path_bits[-1])
 
 
@@ -28,6 +28,18 @@ def skip():
     return (skipped, current)
 
 
+def copy(track):
+    subprocess.run(['cp','/config/%s' % track,'/config/next'])
+
+
+def back():
+    copy('now-playing')
+
+
+def prev():
+    copy('previous')
+
+
 @bot.event
 async def on_ready():
     print('Logged in as %s (uid: %d)' % (bot.user.name, bot.user.id))
@@ -36,6 +48,7 @@ async def on_ready():
 @bot.command()
 async def next(ctx):
     """Skips radio song (there is no back!)"""
+    print("Skipping track")
     await ctx.send('Skipped %s - Now playing: %s' % skip())
 
 
@@ -46,9 +59,18 @@ async def playing(ctx):
 
 
 @bot.command()
+async def back(ctx):
+    """Restarts current radio song (there is no back!)"""
+    print("Restarting track")
+    back()
+    await ctx.send('Skipped %s - Now playing: %s' % skip())
+
+
+@bot.command()
 async def prev(ctx):
-    """Plays previous radio song (there is no back!)"""
-    subprocess.run(['cp','/config/now-playing','/config/next'])
+    """Restarts current radio song (there is no back!)"""
+    print("Playing previous track")
+    prev()
     await ctx.send('Skipped %s - Now playing: %s' % skip())
 
 
