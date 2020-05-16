@@ -6,6 +6,7 @@ ICECAST_MOUNT=${ICECAST_MOUNT:-live}
 ICECAST_EZSTREAM_MOUNT=${ICECAST_EZSTREAM_MOUNT:-fallback}
 ICECAST_STREAM_URL=${ICECAST_STREAM_URL:-'http://icecast'}
 EZSTREAM_PLAYLISTS=${EZSTREAM_PLAYLISTS:-'rock hip-hop'}
+CHUNEBOT_TOKEN=${CHUNEBOT_TOKEN:-'SET CHUNBOT_TOKEN ENV VAR'}
 
 TMPDIR=$(mktemp -d)
 
@@ -42,6 +43,8 @@ function tokenize_config() {
   cp ${TMPDIR}/${_config} /config
   chmod 600 /config/${_config}
 }
+
+sed -i'' -e "s/CHUNEBOT_TOKEN/${CHUNEBOT_TOKEN}/g" /chunebot.py
 
 for conf in ezstream.xml mopidy.conf; do
   tokenize $conf

@@ -28,7 +28,7 @@ until [ -e "$song" ] && (file --mime-type "$song" |grep audio >/dev/null); do
   # Get potential selection
   candidate=$(selecta)
   # Ensure we haven't already marked it as bad
-  while grep -q $candidate $BAD_SONG_LOG; do
+  while grep -q "$candidate" $BAD_SONG_LOG; do
     # try again if so
     candidate=$(selecta)
   done
