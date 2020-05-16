@@ -7,13 +7,27 @@ PLAYLIST_DIR=${PLAYLIST_DIR:-/var/lib/mopidy/playlists}
 LOG_ROOT=${LOG_ROOT:-/config/}
 BAD_SONG_LOG=${BAD_SONG_LOG:-${LOG_ROOT}/bad_songs.log}
 
-# randomly pick songs from playlist until a file that is both
-# 1: existing
-# 2: has valid audio file headers
-# Log files that fail to meet the criteria
+function selecta() {
+  shuf ${PLAYLIST_DIR}/${PLAYLISTS[$RANDOM % ${#PLAYLISTS[@]}]}.m3u -n 1
+}
+
+# begin with: empty string song:
+# until song contains a path to a file that both
+  # 1: exists
+  # 2: has valid audio file headers
 until [ -e "$song" ] && (file --mime-type "$song" |grep audio >/dev/null); do
+  # If song isnt empty (above conditions werent satisfied:
+    # Log song to bad song file
   [ -n "$song" ] && echo "Skipping $song" >> $BAD_SONG_LOG
-  song="${MEDIA_DIR}/$(shuf ${PLAYLIST_DIR}/${PLAYLISTS[$RANDOM % ${#PLAYLISTS[@]}]}.m3u -n 1)"
+  # Get potential selection
+  candidate=$(selecta)
+  # Ensure we haven't already marked it as bad
+  while grep -q $candidate $BAD_SONG_LOG; do
+    # try again if so
+    candidate=$(selecta)
+  done
+  # Return song to loop for validation
+  song="${MEDIA_DIR}/${candidate}"
 done
 
 echo "${song}"
