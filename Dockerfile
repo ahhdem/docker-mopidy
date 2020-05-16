@@ -14,6 +14,7 @@ RUN set -ex \
     # (see https://docs.mopidy.com/en/latest/installation/debian/ )
  && apt-get update \
  && apt-get install -y \
+        git \
         curl \
         dumb-init \
         gcc \
@@ -37,7 +38,7 @@ RUN apt-get update \
         mopidy \
         mopidy-soundcloud \
         mopidy-spotify \
- && pip3 install -U six pyasn1 requests[security] cryptography \
+ && pip3 install -U six pyasn1 requests[security] cryptography git+http://github.com/ahhdem/bassdrive-mopidy \
  && pip3 install \
         Mopidy-Iris \
         Mopidy-Moped \
@@ -47,7 +48,6 @@ RUN apt-get update \
         Mopidy-YouTube \
         Mopidy-Scrobbler \
         Mopidy-SomaFM \
-        Mopidy-Bassdrive \
         Mopidy-Party \
         Mopidy-Podcast \
         Mopidy-Mowecl \
@@ -57,6 +57,7 @@ RUN apt-get update \
  && ln -s /config /var/lib/mopidy/.config/mopidy \
     # Clean-up
  && apt-get purge --auto-remove -y \
+        git \
         curl \
         gcc \
  && apt-get clean \
