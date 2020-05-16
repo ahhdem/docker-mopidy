@@ -18,10 +18,12 @@ RUN set -ex \
         curl \
         dumb-init \
         gcc \
+        git \
         gnupg \
         gstreamer1.0-alsa \
         gstreamer1.0-plugins-bad \
         mp3val \
+        procps \
         python3 \
         python3-crypto \
         python3-pip \

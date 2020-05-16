@@ -33,6 +33,12 @@ function ezstreamer() {
   done
 }
 
+function invalid() {
+  # Provide mechanism to skip songs which failed repair
+  local _song=$1
+  grep -q "${_song}" $FAILED_REPAIR_LOG
+}
+
 function fixBadSongs() {
   [ ! -e $FAILED_REPAIR_LOG ] && touch $FAILED_REPAIR_LOG
   tail -f $FAILED_REPAIR_LOG&
@@ -43,18 +49,20 @@ function fixBadSongs() {
       if [ -e "$song" ]; then
         # Preserve timestamp
         local _mtime=$(stat -c %y "$song");
-        echo "Trying to repair: ${song}"
-        mp3val "$song" -f || {
-          # Add to FAILED_REPAIR_LOG on error
-          echo "Failed to repair: $song - See ${FILE_REPAIR_LOG} for more details" >>$FAILED_REPAIR_LOG;
-        }
-        # Restore timestamp
-        touch -d "$_mtime" "$song"
+        if ! invalid $song; then
+          echo "Trying to repair: ${song}"
+          mp3val "$song" -f || {
+            # Add to FAILED_REPAIR_LOG on error
+            echo "Failed to repair: $song - See ${FILE_REPAIR_LOG} for more details" >>$FAILED_REPAIR_LOG;
+          }
+          # Restore timestamp
+          touch -d "$_mtime" "$song"
+          # Remove from BAD_SONG_LOG so we dont repeatedly try to repair
+          sed -i'' -e "/^$(echo $song |sed -e 's/[]\/$*.^[]/\\&/g')/d" ${BAD_SONG_LOG}
+        fi
       else
         echo "Missing: $song" >>$MISSING_SONG_LOG
       fi
-      # Remove from BAD_SONG_LOG so we dont repeatedly try to repair
-      sed -i'' -e "/^$(echo $song |sed -e 's/[]\/$*.^[]/\\&/g')/d" ${BAD_SONG_LOG}
     done
   done
 }

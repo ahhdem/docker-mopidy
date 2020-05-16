@@ -11,6 +11,12 @@ function selecta() {
   shuf ${PLAYLIST_DIR}/${PLAYLISTS[$RANDOM % ${#PLAYLISTS[@]}]}.m3u -n 1
 }
 
+next=${LOG_ROOT}/next
+[ -e ${next} ] && {
+  song=$(cat ${next});
+  rm -f ${next};
+}
+
 # begin with: empty string song:
 # until song contains a path to a file that both
   # 1: exists
@@ -30,4 +36,6 @@ until [ -e "$song" ] && (file --mime-type "$song" |grep audio >/dev/null); do
   song="${MEDIA_DIR}/${candidate}"
 done
 
-echo "${song}"
+now_playing=${LOG_ROOT}/now-playing
+[ -e $now_playing ] &&  mv $now_playing ${LOG_ROOT}/previous
+echo "${song}" |tee $now_playing
