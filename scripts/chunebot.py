@@ -40,19 +40,19 @@ async def getStreamStatus():
     return details
 
 
-def nowPlaying():
+async def nowPlaying():
     current = ''
     while current is '':
         current = run(['/bin/cat', '/config/now-playing'], capture_output=True, text=True).stdout
 
     path_bits=current.split('/')
-    return path_bits[5:].join('/')
+    return '/'.join(path_bits[5:])
 
 
 async def skipTo(song='', stream='ezstream'):
     if (song):
        await setNextTrack(song)
-    skipped=nowPlaying()
+    skipped=await nowPlaying()
     current=skipped
     run(['/next', stream])
     if (song is 'now-playing'):
@@ -60,7 +60,7 @@ async def skipTo(song='', stream='ezstream'):
         return (skipped, current)
     # Wait for the song to change
     while current == skipped:
-        current = nowPlaying()
+        current = await nowPlaying()
 
     return (skipped, current)
 
@@ -84,7 +84,7 @@ async def next(ctx):
 @bot.command()
 async def playing(ctx):
     """Show currently playing track"""
-    await ctx.send('Now playing: %s' % (nowPlaying()))
+    await ctx.send('Now playing: %s' % (await nowPlaying()))
 
 
 @bot.command()
