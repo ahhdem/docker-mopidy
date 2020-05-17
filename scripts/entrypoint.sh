@@ -94,6 +94,7 @@ if [ -n "$USE_EZSTREAM" ]
 then
   /tokenize.sh
   ezstreamer&
+  chunebot&
   # Periodically check BAD_SONG_LOG and attempt to repair mp3 files
   fixBadSongs 2>&1 >>${FILE_REPAIR_LOG}&
   tail -f ${FILE_REPAIR_LOG}&

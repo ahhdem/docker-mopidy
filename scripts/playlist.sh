@@ -37,5 +37,5 @@ until [ -e "$song" ] && (file --mime-type "$song" |grep audio >/dev/null); do
 done
 
 now_playing=${LOG_ROOT}/now-playing
-[ -e $now_playing ] &&  mv $now_playing ${LOG_ROOT}/previous
-echo "${song}" |tee $now_playing
+[ -e $now_playing ] && cp $now_playing ${LOG_ROOT}/previous
+echo "${song}" |tee $nowplaying

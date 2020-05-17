@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import discord
 from discord.ext import commands
 import random
@@ -18,27 +20,24 @@ def now_playing():
     return '%s/%s' % (path_bits[-2], path_bits[-1])
 
 
-def skip():
+async def skip(to=''):
+    if (to):
+       await copynext(to)
     skipped=now_playing()
     current=skipped
     subprocess.run(['/next', 'ezstream'])
+    if (to == 'now-playing'):
+        # Dont wait for a different song if restarting track
+        return (skipped, current)
     while current == skipped:
         current = now_playing()
 
     return (skipped, current)
 
 
-def copy(track):
-    subprocess.run(['cp','/config/%s' % track,'/config/next'])
-
-
-def back():
-    copy('now-playing')
-
-
-def prev():
-    copy('previous')
-
+async def copynext(track):
+    subprocess.run(['cp','/config/%s' % track, '/config/next'])
+    return True
 
 @bot.event
 async def on_ready():
@@ -47,31 +46,30 @@ async def on_ready():
 
 @bot.command()
 async def next(ctx):
-    """Skips radio song (there is no back!)"""
+    """Skips to next song"""
     print("Skipping track")
-    await ctx.send('Skipped %s - Now playing: %s' % skip())
+    await ctx.send('Skipped %s - Now playing: %s' % await skip())
 
 
 @bot.command()
 async def playing(ctx):
-    """Skips radio song (there is no back!)"""
+    """Show currently playing track"""
     await ctx.send('Now playing: %s' % (now_playing()))
 
 
 @bot.command()
 async def back(ctx):
-    """Restarts current radio song (there is no back!)"""
+    """Restarts current radio song"""
     print("Restarting track")
-    back()
-    await ctx.send('Skipped %s - Now playing: %s' % skip())
+    (skipped, current) = await skip('now-playing')
+    await ctx.send('Restarting: %s' % current)
 
 
 @bot.command()
 async def prev(ctx):
     """Restarts current radio song (there is no back!)"""
     print("Playing previous track")
-    prev()
-    await ctx.send('Skipped %s - Now playing: %s' % skip())
+    await ctx.send('Skipped %s - Now playing: %s' % await skip('previous'))
 
 
 bot.run('CHUNEBOT_TOKEN')
