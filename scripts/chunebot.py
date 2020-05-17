@@ -2,8 +2,9 @@
 
 import discord
 from discord.ext import commands
-import random
-import subprocess
+from subprocess import run
+from urllib import request
+from xmltodict import parse as xmlparse
 
 description = '''An example bot to showcase the discord.ext.commands extension
 module.
@@ -11,32 +12,61 @@ module.
 There are a number of utility commands being showcased here.'''
 bot = commands.Bot(command_prefix='?', description=description)
 
-def now_playing():
+async def findStream(stream):
+    url = 'http://icecast:8000/%s.xspf' % stream
+    file = request.urlopen(url)
+    data = file.read()
+    file.close()
+
+    data = xmlparse(data)
+    stats = data['playlist']['trackList']['track']
+    stats['stream'] =  stream
+
+    return stats if stats['title'] else None
+
+
+async def getStreamStatus():
+    streams = ['live', 'radio']
+    for stream in streams:
+        details = await findStream(stream)
+        if details:
+            break;
+
+    a_list = [ stat for stat in details['annotation'].split('\n')]
+    for stat in a_list:
+        s = stat.split(':')
+        details[s[0]] = s[1]
+
+    return details
+
+
+def nowPlaying():
     current = ''
-    while current == '':
-        current = subprocess.run(['/bin/cat', '/config/now-playing'], capture_output=True, text=True).stdout
+    while current is '':
+        current = run(['/bin/cat', '/config/now-playing'], capture_output=True, text=True).stdout
 
     path_bits=current.split('/')
-    return '%s/%s' % (path_bits[-2], path_bits[-1])
+    return path_bits[5:].join('/')
 
 
-async def skip(to=''):
-    if (to):
-       await copynext(to)
-    skipped=now_playing()
+async def skipTo(song='', stream='ezstream'):
+    if (song):
+       await setNextTrack(song)
+    skipped=nowPlaying()
     current=skipped
-    subprocess.run(['/next', 'ezstream'])
-    if (to == 'now-playing'):
-        # Dont wait for a different song if restarting track
+    run(['/next', stream])
+    if (song is 'now-playing'):
+        # Dont wait for song change if restarting
         return (skipped, current)
+    # Wait for the song to change
     while current == skipped:
-        current = now_playing()
+        current = nowPlaying()
 
     return (skipped, current)
 
 
-async def copynext(track):
-    subprocess.run(['cp','/config/%s' % track, '/config/next'])
+async def setNextTrack(track):
+    run(['cp','/config/%s' % track, '/config/next'])
     return True
 
 @bot.event
@@ -48,20 +78,20 @@ async def on_ready():
 async def next(ctx):
     """Skips to next song"""
     print("Skipping track")
-    await ctx.send('Skipped %s - Now playing: %s' % await skip())
+    await ctx.send('Skipped %s - Now playing: %s' % await skipTo())
 
 
 @bot.command()
 async def playing(ctx):
     """Show currently playing track"""
-    await ctx.send('Now playing: %s' % (now_playing()))
+    await ctx.send('Now playing: %s' % (nowPlaying()))
 
 
 @bot.command()
 async def back(ctx):
     """Restarts current radio song"""
     print("Restarting track")
-    (skipped, current) = await skip('now-playing')
+    (skipped, current) = await skipTo('now-playing')
     await ctx.send('Restarting: %s' % current)
 
 
@@ -69,7 +99,21 @@ async def back(ctx):
 async def prev(ctx):
     """Restarts current radio song (there is no back!)"""
     print("Playing previous track")
-    await ctx.send('Skipped %s - Now playing: %s' % await skip('previous'))
+    await ctx.send('Skipped %s - Now playing: %s' % await skipTo('previous'))
+
+@bot.command()
+async def stats(ctx):
+    """Gets current stream stats"""
+    print("Fetching stats")
+    status = await getStreamStatus()
+    msg = 'https://stream.cmg.onethree.net/{stream}\nNow Playing: {creator} - {title}\nListeners: {listeners}\nQuality: {bitrate}kbps'.format(
+            stream=status['stream'],
+            creator=status['creator'],
+            title=status['title'],
+            listeners=status['Current Listeners'],
+            bitrate=status['Bitrate'])
+
+    await ctx.send(msg)
 
 
 bot.run('CHUNEBOT_TOKEN')

@@ -40,7 +40,7 @@ RUN apt-get update \
         mopidy \
         mopidy-soundcloud \
         mopidy-spotify \
- && pip3 install -U six pyasn1 requests[security] cryptography git+http://github.com/ahhdem/bassdrive-mopidy \
+ && pip3 install -U six pyasn1 requests[security] cryptography git+http://github.com/ahhdem/bassdrive-mopidy xmltodict \
  && pip3 install \
         Mopidy-Iris \
         Mopidy-Moped \
