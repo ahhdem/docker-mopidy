@@ -106,7 +106,7 @@ async def stats(ctx):
     """Gets current stream stats"""
     print("Fetching stats")
     status = await getStreamStatus()
-    msg = 'https://stream.cmg.onethree.net/{stream}\nNow Playing: {creator} - {title}\nListeners: {listeners}\nQuality: {bitrate}kbps'.format(
+    msg = 'https://ICECAST_HOST/{stream}\nNow Playing: {creator} - {title}\nListeners: {listeners}\nQuality: {bitrate}kbps'.format(
             stream=status['stream'],
             creator=status['creator'],
             title=status['title'],
