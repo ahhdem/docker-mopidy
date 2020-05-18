@@ -22,7 +22,7 @@
       <format>MP3</format>
       <public>No</public>
 
-      <encoder>Lame-CBR128</encoder>
+      <encoder>Lame-CBR256</encoder>
       <server>icecast</server>
       <stream_name>onethree.radio: random EZSTREAM_PLAYLISTS playlists</stream_name>
       <stream_url>ICECAST_STREAM_URL</stream_url>
@@ -43,9 +43,9 @@
 
   <encoders>
     <encoder>
-      <name>Lame-CBR128</name>
+      <name>Lame-CBR256</name>
       <format>MP3</format>
-      <program>lame --preset cbr 128 -r -s 44.1 --bitwidth 16 - -</program>
+      <program>lame --preset cbr 256 -r -s 44.1 --bitwidth 16 - -</program>
     </encoder>
   </encoders>
 </ezstream>
